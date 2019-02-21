@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 
@@ -16,12 +17,15 @@ def detect():
     train_count = vectorizer_count.fit_transform(train_data)
     test_count = vectorizer_count.transform(test_data)
 
-    tfidf_vectorizer = TfidVectorizer(stop_words = 'english', max_df = 0.7)
+    tfidf_vectorizer = TfidfVectorizer(stop_words = 'english', max_df = 0.7)
     tfidf_train = tfidf_vectorizer.fit_transform(train_data)
     tfidf_test = tfidf_vectorizer.transform(test_data)
 
-    print(tfidf_vectorizer.get_feature_name)
-    #print(df.head())
+    print(tfidf_vectorizer.get_feature_names()[-10:])
+    print(vectorizer_count.get_feature_names()[:10])
+
+    count_df = pd.DataFrame(train_count.A, columns = vectorizer_count.get_feature_names())
+    
 def main():
     detect()
 
