@@ -5,9 +5,8 @@ app = Flask (__name__)
 Bootstrap(app)
 
 @app.route('/')
-def home():
-    return render_template('home.html')
-
+def index():
+    return render_template('index.html')
 
 @app.route('/result')
 def result():
