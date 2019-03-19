@@ -4,7 +4,6 @@ from newspaper import Article
 
 app = Flask (__name__)
 Bootstrap(app)
-#//:TODO: Display extracted article
 #//:TODO: Create a database for previously searched/analysed articles and their results.
 #//:TODO:
 @app.route('/')

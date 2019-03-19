@@ -28,15 +28,10 @@
 
 {%block body%}
 <body>
-
-  <!--==========================
-  Header
-  ============================-->
   <header id="header">
     <div class="container">
 
       <div id="logo" class="pull-left">
-        <!-- Uncomment below if you prefer to use a text logo -->
         <h1><a href="#hero">Fake News Detector</a></h1>
       </div>
 
@@ -46,7 +41,6 @@
           <li class="menu-active"><a href="#hero">Home</a></li>
           <li><a href="#about">How it works</a></li>
           <li><a href="#team">Creator</a></li>
-          <li><a href="#contact">Contact Us</a></li>
         </ul>
       </nav>
       {%endblock%}
@@ -63,11 +57,13 @@
     <div class="hero-container">
       <h1>CA400 Final Year Project</h1>
       <h2>This project aims to provide a way to analyse a news article and determine if it's a source of fake news or not</h2>
-      <a href="#about" class="btn-get-started">Get Started</a>
-         <form  action="{{ url_for('handle_data')}}" method="post">
-             <input type="text" name="article_link" value = "Enter article link here">
-            <input type="submit" value="Submit">
-         </form>
+
+      <form action="{{url_for('handle_data')}}" method="post" >
+      <div class="form-group">
+      <input type="text" class="form-control" name="article_link" aria-describedby="emailHelp" placeholder="Enter article link">
+      </div>
+      </form>
+
     </div>
   </section><!-- #hero -->
 
@@ -134,7 +130,6 @@
 
     <!--==========================
       Contact Section
-    ============================-->
     <section id="contact">
       <div class="container wow fadeInUp">
         <div class="section-header">
@@ -143,7 +138,6 @@
         </div>
       </div>
 
-      <!-- Uncomment below if you wan to use dynamic maps -->
 
 
       <div class="container wow fadeInUp mt-5">
@@ -207,7 +201,8 @@
         </div>
 
       </div>
-    </section><!-- #contact -->
+    </section>
+    ============================-->
 
   </main>
 
