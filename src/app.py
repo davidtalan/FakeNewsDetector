@@ -17,7 +17,7 @@ def handle_data():
     article = Article(url)
     article.download()
     article.parse()
-    return render_template('/result.html', variable = article.text)
+    return render_template('/result.html', variable = article.text.lower())
 
 @app.route('/result')
 def result():
