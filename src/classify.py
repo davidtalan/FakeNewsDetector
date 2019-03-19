@@ -6,10 +6,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 
+#//:TODO: Combine the two datasets and clean up the headings
+#//:TODO: Write script to do a Google Search of target article and compare results using Document Similarity
+#//:TODO: Implement document similarity
 def detect():
     train_data = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
     train_data.shape
-    print(train_data.head(3))
+    print(train_data.head(4))
 
     test_data = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/test.csv')
 
@@ -25,7 +28,11 @@ def detect():
     print(vectorizer_count.get_feature_names()[:10])
 
     count_df = pd.DataFrame(train_count.A, columns = vectorizer_count.get_feature_names())
-    
+    tfidf_df = pd.DataFrame(tfidf_train.A, columns = tfidf_vectorizer.get_feature_names())
+    difference = set(count_df.columns) - set(tfidf_df.columns)
+    print(count_df.equals(tfidf_df))
+    print(tfidf_df.head())
+
 def main():
     detect()
 
