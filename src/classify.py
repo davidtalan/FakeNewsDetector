@@ -7,28 +7,56 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
-
-
-#//:TODO: Combine the two datasets and clean up the headings
-#//:TODO: Write script to do a Google Search of target article and compare results using Document Similarity
-#//:TODO: Implement document similarity
 def detect():
 
     #using the train dataset as a whole dataset for now
     df = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
     df['text'] = df.text.fillna('None')
+    df = df.set_index("id")
+    #y = df.label
     df_x = df['text']
     df_y = df['label']
     x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=0.33, random_state=53)
 
-    cv = TfidfVectorizer(min_df = 1, stop_words = 'english')
-    x_traintf = cv.fit_transform(x_train)
-    x_testtf = cv.fit(x_test)
+    print(x_train.head())
+    print(x_test.head())
+    print(y_train.head())
+    print(y_test.head())
+
+    #x_traintf = tfv.fit_transform(x_train)
+    cv = CountVectorizer(stop_words = 'english', max_features = 1000)
+    x_traincv = cv.fit_transform(x_train)
+    x_testcv = cv.transform(x_test)
+
+    tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features = 1000)
+    x_traintf = tfv.fit_transform(x_train)
+    x_testtf = tfv.transform(x_test)
+
+    print(tfv.get_feature_names()[-10:])
+    print(cv.get_feature_names()[-10:])
+
+    cv_count_df = pd.DataFrame(x_traincv.A, columns = cv.get_feature_names())
+
+    tfv_count_df = pd.DataFrame(x_traintf.A, columns = tfv.get_feature_names())
+
+    print(cv_count_df.head())
+    print(tfv_count_df.head())
+    mnb_clf = MultinomialNB()
+    mnb_clf.fit(x_traincv, y_train)
+    pred = mnb_clf.predict(x_testcv)
+    score = metrics.accuracy_score (y_test, pred)
+    print(score)
+
+    """
+    x_traintf.toarray()
+
+    x_testtf = tfv.fit(x_test)
     mnb = MultinomialNB()
     y_train = y_train.astype('int')
     mnb.fit(x_traintf,y_train)
-    """
+
     pred = mnb.predict(x_testtf)
     print(pred)
     pre = np.array(pred)
