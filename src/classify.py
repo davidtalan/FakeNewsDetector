@@ -13,14 +13,17 @@ from collections import Counter
 import timeit
 import re
 
-def detect():
-
-    article = open("/home/david/2019-ca400-taland2/src/dataset/test.txt","r")
+def extract(link):
+    article = open(link,"r")
     article = article.read()
     article = article.lower()
     article = re.sub(r'[^a-zA-Z0-9\s]', ' ', article)
     article = [article]
+    return article
 
+def detect():
+
+    article = extract("/home/david/2019-ca400-taland2/src/dataset/test.txt")
     #using the train dataset as a whole dataset for now
     dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
 
@@ -39,13 +42,6 @@ def detect():
     #y_test = dftest['label']
     #prints first 4
 
-    print(x_train.head())
-    print(x_test.head())
-    print(y_train.head())
-    print(y_test.head())
-    print(len(dftrain.index))
-
-
     #Set up CountVectorizer
     cv = CountVectorizer(stop_words = 'english', max_features = 1000)
 
@@ -63,18 +59,18 @@ def detect():
     #x_testtf = tfv.transform(x_test)
 
     #prints out the features for tfidf
-    print(tfv.get_feature_names()[-10:])
+    #print(tfv.get_feature_names()[-10:])
     #prints out the features for  cv
-    print(cv.get_feature_names()[-10:])
+    #print(cv.get_feature_names()[-10:])
 
     #turns it into a data structure
-    cv_count_df = pd.DataFrame(x_traincv.A, columns = cv.get_feature_names())
+    #cv_count_df = pd.DataFrame(x_traincv.A, columns = cv.get_feature_names())
 
-    tfv_count_df = pd.DataFrame(x_traintf.A, columns = tfv.get_feature_names())
+    #tfv_count_df = pd.DataFrame(x_traintf.A, columns = tfv.get_feature_names())
 
     #prints the first 4 rows of the dataframe
-    print(cv_count_df.head())
-    print(tfv_count_df.head())
+    #print(cv_count_df.head())
+    #print(tfv_count_df.head())
 
     #initialising the clasifier
     mnb_clf = MultinomialNB()
@@ -89,12 +85,14 @@ def detect():
     #pred = mnb_clf.predict(x_testtf)
     pred = mnb_clf.predict(article_testtf)
 
+    joblib.dump(mnb_clf, 'mnb_clf_joblib.pkl')
+    joblib.dump(tfv, 'tfv_vec.pkl')
     #score = metrics.accuracy_score (y_test, pred)
     #print(score)
     if pred == [0]:
-        print("Real")
+        print("This news article is reliable")
     else:
-        print("Fake")
+        print("This news article is deemed unreliable")
 
     """
     n = 100
