@@ -15,18 +15,14 @@ from sklearn import metrics
 from collections import Counter
 import timeit
 import re
+from googlesearch import search
 
 app = Flask (__name__)
 Bootstrap(app)
 #//:TODO: Create a database for previously searched/analysed articles and their results.
 #//:TODO:
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/handle_data', methods = ['POST'])
-def handle_data():
-    url = (request.form['article_link'])
+def extractor(url):
     article = Article(url)
     article.download()
     article.parse()
@@ -34,7 +30,24 @@ def handle_data():
     article = article.text.lower()
     article = re.sub(r'[^a-zA-Z0-9\s]', ' ', article)
     article = [article]
+    return (article, article_title)
 
+def google_search(title):
+    query = title
+    search_result = []
+    for i in search(query, tld = "com", num = 10, start = 1, stop = 10):
+        search_result.append(i)
+
+    return search_result
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/handle_data', methods = ['POST'])
+def handle_data():
+    url = (request.form['article_link'])
+    article, article_title = extractor(url)
     dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
     #drops rows that have null values
     dftrain = dftrain.dropna()
@@ -86,15 +99,17 @@ def handle_data():
     #if pred == [0]:
     title = article_title
     return result(pred, title)
-    
+
 
 @app.route('/result')
 def result(prediction, title):
     article_title = title
+    search_list = google_search(title)
+
     if prediction == [0]:
-        return render_template('/result.html', variable = "This news article is reliable", title = article_title)
+        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list)
     else:
-        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title)
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title,list = search_list)
 
 if __name__ == '__main__':
     app.run(debug = True)
