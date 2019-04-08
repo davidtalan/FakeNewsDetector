@@ -12,6 +12,8 @@ from sklearn import metrics
 from collections import Counter
 import timeit
 import re
+import chardet
+import codecs
 
 def extract(link):
     article = open(link,"r")
@@ -24,8 +26,15 @@ def extract(link):
 def detect():
 
     article = extract("/home/david/2019-ca400-taland2/src/dataset/test.txt")
+
+
+    with open('/home/david/fake_or_real_news.csv', 'rb') as f:
+        while i in f:
+            encoding = chardet.detect(f.readline())
+            if econding != 'UTF-8'
+             ``
     #using the train dataset as a whole dataset for now
-    dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
+    dftrain = pd.read_csv('/home/david/fake_or_real_news.csv', encoding = 'UTF-8',errors='ignore')
 
     #drops rows that have null values
     dftrain = dftrain.dropna()
@@ -47,16 +56,16 @@ def detect():
 
     #fit/transform the dataset
     x_traincv = cv.fit_transform(x_train)
-    article_testcv = cv.transform(article)
-    #x_testcv = cv.transform(x_test)
+    #article_testcv = cv.transform(article)
+    x_testcv = cv.transform(x_test)
 
     #Set up TfidfVectorizer
     tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features =1000)
 
     #fit/transform the dataset
     x_traintf = tfv.fit_transform(x_train)
-    article_testtf = tfv.transform(article)
-    #x_testtf = tfv.transform(x_test)
+    #article_testtf = tfv.transform(article)
+    x_testtf = tfv.transform(x_test)
 
     #prints out the features for tfidf
     #print(tfv.get_feature_names()[-10:])
@@ -82,19 +91,20 @@ def detect():
     #svm.fit(x_traincv, y_train)
 
     #prediction
-    #pred = mnb_clf.predict(x_testtf)
-    pred = mnb_clf.predict(article_testtf)
+    pred = mnb_clf.predict(x_testtf)
+    #pred = mnb_clf.predict(article_testtf)
 
     joblib.dump(mnb_clf, 'mnb_clf_joblib.pkl')
     joblib.dump(tfv, 'tfv_vec.pkl')
-    #score = metrics.accuracy_score (y_test, pred)
-    #print(score)
+    score = metrics.accuracy_score (y_test, pred)
+    print(score)
+
+    """
     if pred == [0]:
         print("This news article is reliable")
     else:
         print("This news article is deemed unreliable")
 
-    """
     n = 100
     class_labels = pac.classes_
     feature_names = tfv.get_feature_names()

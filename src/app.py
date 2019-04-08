@@ -83,14 +83,18 @@ def handle_data():
     #score = metrics.accuracy_score (y_test, pred)
     #print(score)
 
-    if pred == [0]:
-        return render_template('/result.html', variable = "Real")
-    else:
-        return render_template('/result.html', variable = "Fake")
+    #if pred == [0]:
+    title = article_title
+    return result(pred, title)
+    
 
 @app.route('/result')
-def result():
-    return render_template('result.html')
+def result(prediction, title):
+    article_title = title
+    if prediction == [0]:
+        return render_template('/result.html', variable = "This news article is reliable", title = article_title)
+    else:
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title)
 
 if __name__ == '__main__':
     app.run(debug = True)
