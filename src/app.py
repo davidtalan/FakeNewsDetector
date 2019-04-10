@@ -38,7 +38,6 @@ def google_search(title):
     search_result = []
     search_title = []
     for i in search(query, tld = "com", num = 10, start = 1, stop = 5):
-        #link = i.strip(" ' ")
         article = Article(i)
         article.download()
         article.parse()
