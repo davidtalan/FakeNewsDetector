@@ -34,11 +34,20 @@ def extractor(url):
 
 def google_search(title):
     query = title
+    search_dict = {}
     search_result = []
-    for i in search(query, tld = "com", num = 10, start = 1, stop = 10):
-        search_result.append(i)
-
-    return search_result
+    search_title = []
+    for i in search(query, tld = "com", num = 10, start = 1, stop = 5):
+        #link = i.strip(" ' ")
+        article = Article(i)
+        article.download()
+        article.parse()
+        title = article.title
+        search_result[title] = i
+        #search_title.append(article.title)
+        #search_result.append(i)
+        return search_result
+    #return (search_result, search_title)
 
 @app.route('/')
 def index():
@@ -104,12 +113,12 @@ def handle_data():
 @app.route('/result')
 def result(prediction, title):
     article_title = title
+    #search_list, search_title = google_search(title)
     search_list = google_search(title)
-
     if prediction == [0]:
         return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list)
     else:
-        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title,list = search_list)
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list)
 
 if __name__ == '__main__':
     app.run(debug = True)
