@@ -34,23 +34,26 @@ def google_search(title):
     search_dict = {}
     search_result = []
     search_title = []
+    #grabs the search result from google
     for i in search(query, tld = "com", num = 10, start = 1, stop = 5):
-        #link = i.strip(" ' ")
         article = Article(i)
         article.download()
         article.parse()
         title = article.title
-        #search_title.append(article.title)
         search_result.append(i)
     return search_result
 
 def similar():
-    article, article_title = extractor("https://www.bbc.com/news/science-environment-47873072")
+    #gets the body of the target article and the title
+    article, article_title = extractor("http://waterfordwhispersnews.com/2019/04/09/googling-cancer-now-the-number-one-cause-of-cancer/")
 
     print(article_title)
-    sites = google_search("Brexit: May awaits EU Brexit extension decision")
+    #calls the google search function
+    sites = google_search(article_title)
 
+    #prep
     sim_tfv = TfidfVectorizer(stop_words = "english")
+    #fittransform target article
     sim_transform1 = sim_tfv.fit_transform(article)
     pprint.pprint(sites)
 
@@ -58,9 +61,9 @@ def similar():
         #returns a list
         test_article, test_title = extractor(i)
         test_article = [test_article]
-        x = 0
-        sim_transform2 = sim_tfv.transform(test_article[x])
-        x += 1
+        #fittransform the search result articles
+        print(test_article[0])
+        sim_transform2 = sim_tfv.transform(test_article[0])
         cosine = cosine_similarity(sim_transform1, sim_transform2)
         pprint.pprint(cosine)
 

@@ -42,10 +42,11 @@ def google_search(title):
         article.download()
         article.parse()
         title = article.title
-        search_result[title] = i
-        #search_title.append(article.title)
-        #search_result.append(i)
-        return search_result
+        #search_result[title] = i
+        search_title.append(title)
+        search_result.append(i)
+
+    return search_result, search_title
     #return (search_result, search_title)
 
 @app.route('/')
@@ -113,11 +114,11 @@ def handle_data():
 def result(prediction, title):
     article_title = title
     #search_list, search_title = google_search(title)
-    search_list = google_search(title)
+    search_list,search_titles = google_search(title)
     if prediction == [0]:
-        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list)
+        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list, search_t = search_titles)
     else:
-        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list)
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list, search_t = search_titles)
 
 if __name__ == '__main__':
     app.run(debug = True)

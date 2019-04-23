@@ -68,23 +68,33 @@
       <h2>{{variable}}</h2>
       <h2>Google search results with the title</h2>
 
-      <table>
-         {%for key, value in list.iteritems()%}
-         <tr>
-            <th>{{key}}</th>
-            <td><a href="{{value}}">Link</a></td>
+      <table class="table table-striped table-dark">
+         <thead>
+            <tr>
+               <th scope = "col" style="width:50%"> Article Link </th>
+               <th scope = "col" style="width:25%"> News Source </th>
+               <th scope = "col" style="width:25%"> Similarity Score </th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for i in list %}
+            <tr>
+                <th scope = "row"><p id = "p1"><a href="{{i}}" style = "color:white">{{search_t[loop.index0]}}</a></p></th>
+               <td>Site</td>
+               <td>69%</td>
+            </tr>
+            {%endfor%}
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+            <link href="http://codegena.com/assets/css/image-preview-for-link.css" rel="stylesheet">
+            <script src="http://codegena.com/assets/js/image-preview-for-link.js"></script>
+            <script type="text/javascript">
+               $(function(){
+                  $('#p1 a').miniPreview({prefetch: 'parenthover'});
+               });
+            </script>
 
-         </tr>
+         </tbody>
       </table>
-
-      <!--
-      {% for i in list %}
-         {%for j in s_titles%}
-            <h3><a href="{{i}}">{{j}}</a></h3>
-         {%endfor%}
-      {%endfor%}
-      -->
-
 
     </div>
   </section><!-- #hero -->
@@ -193,6 +203,8 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.hoverintent/1.10.0/jquery.hoverIntent.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/superfish/1.7.10/js/superfish.min.js"></script>
+   <script src="https://rawgit.com/shaneapen/Image-Preview-for-Links/master/image_preview_for_links.js"></script>
+
   <!-- Contact Form JavaScript File -->
   <script src="{{url_for('.static', filename='contactform/contactform.js')}}"></script>
 

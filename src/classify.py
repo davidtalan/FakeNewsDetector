@@ -27,14 +27,15 @@ def detect():
 
     article = extract("/home/david/2019-ca400-taland2/src/dataset/test.txt")
 
-
+    """
     with open('/home/david/fake_or_real_news.csv', 'rb') as f:
         while i in f:
             encoding = chardet.detect(f.readline())
             if econding != 'UTF-8'
              ``
+    """
     #using the train dataset as a whole dataset for now
-    dftrain = pd.read_csv('/home/david/fake_or_real_news.csv', encoding = 'UTF-8',errors='ignore')
+    dftrain = pd.read_csv('/home/david/fake_or_real_news.csv', encoding = "ISO-8859-1")
 
     #drops rows that have null values
     dftrain = dftrain.dropna()
@@ -52,7 +53,7 @@ def detect():
     #prints first 4
 
     #Set up CountVectorizer
-    cv = CountVectorizer(stop_words = 'english', max_features = 1000)
+    cv = CountVectorizer(stop_words = 'english', max_features = 1000)   
 
     #fit/transform the dataset
     x_traincv = cv.fit_transform(x_train)
@@ -60,7 +61,7 @@ def detect():
     x_testcv = cv.transform(x_test)
 
     #Set up TfidfVectorizer
-    tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features =1000)
+    tfv = TfidfVectorizer( stop_words = 'english',max_df = 5, max_features =1000)
 
     #fit/transform the dataset
     x_traintf = tfv.fit_transform(x_train)
