@@ -80,8 +80,8 @@
             {% for i in list %}
             <tr>
                 <th scope = "row"><p id = "p1"><a href="{{i}}" style = "color:white">{{search_t[loop.index0]}}</a></p></th>
-               <td>Site</td>
-               <td>69%</td>
+               <td><a href="{{urls[loop.index0]}}">{{domains[loop.index0]}}</a></td>
+               <td>{{sim_score[loop.index0]}}</td>
             </tr>
             {%endfor%}
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>

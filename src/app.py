@@ -13,9 +13,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn import metrics
 from collections import Counter
-import timeit
 import re
 from googlesearch import search
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask (__name__)
 Bootstrap(app)
@@ -37,17 +37,39 @@ def google_search(title):
     search_dict = {}
     search_result = []
     search_title = []
-    for i in search(query, tld = "com", num = 10, start = 1, stop = 5):
-        article = Article(i)
-        article.download()
-        article.parse()
-        title = article.title
-        #search_result[title] = i
-        search_title.append(title)
-        search_result.append(i)
+    search_urls = []
+    for i in search(query, tld = "com", num = 10, start = 1, stop = 7):
+        if "youtube" not in i:
+            search_urls.append(i)
+            article = Article(i)
+            article.download()
+            article.parse()
+            title = article.title
+            search_title.append(title)
+            search_result.append(i)
 
-    return search_result, search_title
+    #regex to extract site name
+    #url_string = " ".join(str(x) for x in search_urls)
+    domains = []
+    for i in search_urls:
+        s = re.findall(r'\s(?:www.)?(\w+.com)', i)
+        domains.append(s)
+
+    return search_result, search_title, domains, search_urls
     #return (search_result, search_title)
+
+def similarity(list, article):
+    article = article
+    sim_tfv = TfidfVectorizer(stop_words ="english")
+    sim_transform1 = sim_tfv.fit_transform(article)
+    cosine = []
+    for i in list:
+        test_article, test_title = extractor(i)
+        test_article = [test_article]
+        sim_transform2 = sim_tfv.transform(test_article[0])
+        score = cosine_similarity(sim_transform1, sim_transform2)
+        cosine.append(score)
+    return cosine
 
 @app.route('/')
 def index():
@@ -107,18 +129,21 @@ def handle_data():
 
     #if pred == [0]:
     title = article_title
-    return result(pred, title)
+    return result(pred, title, article)
 
 
 @app.route('/result')
-def result(prediction, title):
+def result(prediction, title, article):
     article_title = title
     #search_list, search_title = google_search(title)
-    search_list,search_titles = google_search(title)
+    search_list,search_titles, domains, urls = google_search(title)
+
+    similarity_score = similarity(search_list, article)
+
     if prediction == [0]:
-        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list, search_t = search_titles)
+        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list, search_t = search_titles, urls = urls, domains = domains,sim_score = similarity_score)
     else:
-        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list, search_t = search_titles)
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list, search_t = search_titles, urls = urls, domains = domains, sim_score = similarity_score)
 
 if __name__ == '__main__':
     app.run(debug = True)
