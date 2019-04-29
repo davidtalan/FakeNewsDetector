@@ -48,8 +48,7 @@ def google_search(title):
             search_title.append(title)
             search_result.append(i)
 
-    #regex to extract site name
-    #url_string = " ".join(str(x) for x in search_urls)
+
     domains = []
     for i in search_urls:
         s = re.findall(r'\s(?:www.)?(\w+.com)', i)
