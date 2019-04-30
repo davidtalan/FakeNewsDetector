@@ -24,8 +24,12 @@ Bootstrap(app)
 
 def extractor(url):
     article = Article(url)
-    article.download()
-    article.parse()
+    try:
+        article.download()
+        article.parse()
+    except:
+        pass
+
     article_title = article.title
     article = article.text.lower()
     article = re.sub(r'[^a-zA-Z0-9\s]', ' ', article)
@@ -35,34 +39,36 @@ def extractor(url):
 def google_search(title):
     query = title
     search_dict = {}
-    search_result = []
+    #search_result = []
     search_title = []
     search_urls = []
     for i in search(query, tld = "com", num = 10, start = 1, stop = 7):
         if "youtube" not in i:
             search_urls.append(i)
             article = Article(i)
-            article.download()
-            article.parse()
+            try:
+                article.download()
+                article.parse()
+            except:
+                pass
             title = article.title
             search_title.append(title)
-            search_result.append(i)
-
+            #search_result.append(i)
 
     domains = []
     for i in search_urls:
         s = re.findall(r'\s(?:www.)?(\w+.com)', i)
         domains.append(s)
 
-    return search_result, search_title, domains, search_urls
+    return search_urls, search_title, domains
     #return (search_result, search_title)
 
-def similarity(list, article):
+def similarity(url_list, article):
     article = article
     sim_tfv = TfidfVectorizer(stop_words ="english")
     sim_transform1 = sim_tfv.fit_transform(article)
     cosine = []
-    for i in list:
+    for i in url_list:
         test_article, test_title = extractor(i)
         test_article = [test_article]
         sim_transform2 = sim_tfv.transform(test_article[0])
@@ -134,15 +140,15 @@ def handle_data():
 @app.route('/result')
 def result(prediction, title, article):
     article_title = title
-    #search_list, search_title = google_search(title)
-    search_list,search_titles, domains, urls = google_search(title)
 
-    similarity_score = similarity(search_list, article)
+    url_list, search_titles, domains = google_search(title)
+
+    similarity_score = similarity(url_list, article)
 
     if prediction == [0]:
-        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = search_list, search_t = search_titles, urls = urls, domains = domains,sim_score = similarity_score)
+        return render_template('/result.html', variable = "This news article is reliable", title = article_title, list = url_list, search_t = search_titles,  domains = domains,sim_score = similarity_score)
     else:
-        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = search_list, search_t = search_titles, urls = urls, domains = domains, sim_score = similarity_score)
+        return render_template('/result.html', variable = "This news article is deemed unreliable", title = article_title, list = url_list, search_t = search_titles,  domains = domains, sim_score = similarity_score)
 
 if __name__ == '__main__':
     app.run(debug = True)
