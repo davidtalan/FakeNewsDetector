@@ -36,14 +36,13 @@ def extractor(url):
     article = [article]
     return (article, article_title)
 
-def google_search(title):
-    query = title
+def google_search(title, url):
     search_dict = {}
     #search_result = []
     search_title = []
     search_urls = []
-    for i in search(query, tld = "com", num = 10, start = 1, stop = 7):
-        if "youtube" not in i:
+    for i in search(title, tld = "com", num = 10, start = 1, stop = 7):
+        if "youtube" not in i and i != url:
             search_urls.append(i)
             article = Article(i)
             try:
@@ -127,21 +126,21 @@ def handle_data():
     #pred = mnb_clf.predict(x_testtf)
     pred = mnb_clf.predict(article_testtf)
 
-    #joblib.dump(mnb_clf, 'mnb_clf_joblib.pkl')
+    joblib.dump(mnb_clf, 'mnb_clf_joblib.pkl')
     #joblib.dump(tfv, 'tfv_vec.pkl')
     #score = metrics.accuracy_score (y_test, pred)
     #print(score)
 
     #if pred == [0]:
     title = article_title
-    return result(pred, title, article)
+    return result(pred, title, article, url)
 
 
 @app.route('/result')
-def result(prediction, title, article):
+def result(prediction, title, article, url):
     article_title = title
 
-    url_list, search_titles, domains = google_search(title)
+    url_list, search_titles, domains = google_search(title, url)
 
     similarity_score = similarity(url_list, article)
 
