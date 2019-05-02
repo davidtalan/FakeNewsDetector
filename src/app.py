@@ -42,7 +42,7 @@ def google_search(title, url):
     search_title = []
     search_urls = []
     for i in search(title, tld = "com", num = 10, start = 1, stop = 7):
-        if "youtube" not in i and i != url:
+        if "youtube" not in i and url not in i:
             search_urls.append(i)
             article = Article(i)
             try:
@@ -52,7 +52,6 @@ def google_search(title, url):
                 pass
             title = article.title
             search_title.append(title)
-            #search_result.append(i)
 
     domains = []
     for i in search_urls:
@@ -83,55 +82,11 @@ def index():
 def handle_data():
     url = (request.form['article_link'])
     article, article_title = extractor(url)
-    dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
-    #drops rows that have null values
-    dftrain = dftrain.dropna()
-
-    #Set column names to variables
-    df_x = dftrain['text']
-    df_y = dftrain['label']
-
-    #split training data
-    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=0.33, random_state=53)
-
-
-    #Set up CountVectorizer
-    cv = CountVectorizer(stop_words = 'english', max_features = 1000)
-
-    #fit/transform the dataset
-    x_traincv = cv.fit_transform(x_train)
-    article_testcv = cv.transform(article)
-    #x_testcv = cv.transform(x_test)
-
-    #Set up TfidfVectorizer
-    tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features =1000)
-
-    #fit/transform the dataset
-    x_traintf = tfv.fit_transform(x_train)
-    article_testtf = tfv.transform(article)
-    #x_testtf = tfv.transform(x_test)
-
-
-
-    #initialising the clasifier
-    mnb_clf = MultinomialNB()
-    #svm = SVC(C = 1.0, kernel= 'linear', degree = 3, gamma = 'auto')
-    #pac = PassiveAggressiveClassifier(n_iter = 50)
-    #fitting in the dataset
-    mnb_clf.fit(x_traincv, y_train)
-    #pac.fit(x_traincv, y_train)
-    #svm.fit(x_traincv, y_train)
-
-    #prediction
-    #pred = mnb_clf.predict(x_testtf)
-    pred = mnb_clf.predict(article_testtf)
-
-    joblib.dump(mnb_clf, 'mnb_clf_joblib.pkl')
-    #joblib.dump(tfv, 'tfv_vec.pkl')
-    #score = metrics.accuracy_score (y_test, pred)
-    #print(score)
-
-    #if pred == [0]:
+    job_vec = joblib.load('tfv.pkl')
+    job_mnb = joblib.load('mnb.pkl')
+    job_cv = joblib.load('cv.pkl')
+    pred = job_mnb.predict(job_cv.transform(article))
+    #pred = mnb_clf.predict(article_testtf)
     title = article_title
     return result(pred, title, article, url)
 
