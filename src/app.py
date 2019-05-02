@@ -19,8 +19,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask (__name__)
 Bootstrap(app)
-#//:TODO: Create a database for previously searched/analysed articles and their results.
-#//:TODO:
 
 def extractor(url):
     article = Article(url)
