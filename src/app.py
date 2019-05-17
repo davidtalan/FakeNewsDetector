@@ -30,17 +30,14 @@ def extractor(url):
 
     article_title = article.title
     article = article.text.lower()
-    article = re.sub(r'[^a-zA-Z0-9\s]', ' ', article)
     article = [article]
     return (article, article_title)
 
 def google_search(title, url):
-    search_dict = {}
-    #search_result = []
     search_title = []
     search_urls = []
     for i in search(title, tld = "com", num = 10, start = 1, stop = 7):
-        if "youtube" not in i and url not in i:
+        if "youtube" not in i and i not in url:
             search_urls.append(i)
             article = Article(i)
             try:
@@ -50,27 +47,29 @@ def google_search(title, url):
                 pass
             title = article.title
             search_title.append(title)
-
     domains = []
     for i in search_urls:
         s = re.findall(r'\s(?:www.)?(\w+.com)', i)
         domains.append(s)
-
     return search_urls, search_title, domains
-    #return (search_result, search_title)
 
 def similarity(url_list, article):
     article = article
     sim_tfv = TfidfVectorizer(stop_words ="english")
     sim_transform1 = sim_tfv.fit_transform(article)
     cosine = []
+    cosine2 = []
     for i in url_list:
         test_article, test_title = extractor(i)
         test_article = [test_article]
         sim_transform2 = sim_tfv.transform(test_article[0])
         score = cosine_similarity(sim_transform1, sim_transform2)
-        cosine.append(score)
-    return cosine
+        cosine.append(score*100)
+
+    for i in cosine:
+        x = str(i).replace('[','').replace(']','')
+        cosine2.append(x)
+    return cosine2
 
 @app.route('/')
 def index():
