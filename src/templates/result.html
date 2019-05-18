@@ -49,17 +49,23 @@
 
   <section id="hero">
     <div class="hero-container">
+      <br>
+      <br>
       <h1>Result</h1>
       <h2>{{title}}</h2>
-      <h2>{{variable}}</h2>
-      <h2>Google search results with the title:</h2>
+      <strong><h2>{{variable}}</h2> </strong>
 
+      <form action="{{url_for('result')}}" method="post" >
+         <div class="form-group">
+            <input type="url" required class="form-control" name="article_link"  placeholder="Analyse another article">
+         </div>
+      </form>
 
       <table class="table table-striped table-dark">
          <thead>
             <tr id = "result">
-               <th scope = "col" style="width:50%;"> Article Link </th>
-               <th scope = "col" style="width:25%;"> Similarity Score </th>
+               <th scope = "col" style="width:50%;"> Other Articles from Google</th>
+               <th scope = "col" style="width:25%;"> Similarity Score vs Original Article </th>
             </tr>
          </thead>
          <tbody >
@@ -71,10 +77,38 @@
                       <a href="{{i}}" style = "color:white">{{search_t[loop.index0]}}</a>
                   </p>
                 </th>
-                <td>{{sim_score[loop.index0]}} %</td>
+                <td>{{sim_score[loop.index0]}}%</td>
 
             </tr>
             {%endfor%}
+            <tr>
+                <th scope = "row">
+                   <p>
+                      <b> <a id = "avgid" style=" color:white">Average Similarity Score</a></b>
+                  </p>
+                </th>
+                <td><b>{{average}}%</b></td>
+            </tr>
+
+            <script type="text/javascript">
+            function changeAvgColour(){
+               var avg = parseInt({{average}});
+               if (avg < 15){
+                  document.getElementByID("avgid").style.color = "red";
+               }
+               else if(avg > 15 && avg < 50){
+                  document.getElementByID("avgid").style.color = "yellow";
+                  // var a = document.getElementByID("avgid").innerHTML;
+                  // a.style.color = "yellow";
+               }
+               else if (avg > 50){
+                  document.getElementByID("avgid").style.color = "green";
+                  // var a = document.getElementByID("avgid").innerHTML;
+                  // a.style.color = "green";
+               }
+            }
+            </script>
+
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
             <link href="http://codegena.com/assets/css/image-preview-for-link.css" rel="stylesheet">
             <script src="http://codegena.com/assets/js/image-preview-for-link.js"></script>
@@ -98,10 +132,22 @@
         <div class="row about-container">
 
           <div class="col-lg-6 content order-lg-1 order-2">
-            <h2 class="title">Interpreting the results</h2>
+            <h2 class="title">Interpreting the Results</h2>
 
             <div class="icon-box wow fadeInUp" data-wow-delay="0.4s">
-              <p class="description"> Since the training data used for this project mainly consisted of politically-related articles, it may be the case that <b>reliable</b> articles talking about political topics gets flagged as unreliable. The similarity score is shown to either support or dispute the result of the machine learning model. The more articles found on Google talking about the same thing as the target article, the more reliable it would be. The opposite could be said if there are very few results that talk about the same topic. </p>
+              <p class="description">
+
+                  <h3 id ="zero">Similarity score is 0%?</h3>
+                  <p> This could mean a few things:
+                     <li>The extracted site is an aggregator site i.e. it contains the <b>link</b> to the article and not the article itself. </li>
+                     <li>There is a paywall on the site, meaning you have to be a subscriber to view the article.</li>
+                     <li>The extracted page might only contain images or embedded elements like tweets or Instagram posts and not an article that can be compared to.
+                     </li>
+                  </p>
+                  <h3 id =""></h3>
+
+
+           </p>
             </div>
 
           </div>
