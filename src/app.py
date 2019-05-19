@@ -18,6 +18,7 @@ import re
 app = Flask (__name__)
 Bootstrap(app)
 
+#extractor function that gets the article body from the url
 def extractor(url):
     article = Article(url)
     try:
@@ -26,25 +27,29 @@ def extractor(url):
     except:
         pass
 
+    #gets some of the article features like title
     article_title = article.title
     article = article.text.lower()
     article = [article]
     return (article, article_title)
 
+#function for the textbox extractor
+#it doesn't need an API
 def textAreaExtractor(text):
-
     text = text.lower()
     text = re.sub(r'[^a-zA-Z0-9\s]', ' ', text)
     text = re.sub("(\\r|\r|\n)\\n$", " ", text)
     text = [text]
     return text
 
+#performs a google search using the article title
 def google_search(title, url):
     target = url
     domain = urlparse(target).hostname
     search_title = []
     search_urls = []
     source_sites = []
+    #stores the sitenames and the urls into a list
     for i in search(title, tld = "com", num = 10, start = 1, stop = 6):
         if "youtube" not in i and domain not in i:
             source_sites.append(urlparse(i).hostname)
@@ -60,14 +65,18 @@ def google_search(title, url):
 
     return search_urls, search_title, source_sites
 
+#function to calculate the similarity of an article against another article
 def similarity(url_list, article):
     article = article
     sim_tfv = TfidfVectorizer(stop_words ="english")
+    #article needs to be vectorized first
     sim_transform1 = sim_tfv.fit_transform(article)
     cosine = []
     cosineCleaned = []
     cosineAverage = 0
     count = 0
+    #loop to calculate each article from the google search
+    #against the original article
     for i in url_list:
         test_article, test_title = extractor(i)
         test_article = [test_article]
@@ -86,38 +95,40 @@ def similarity(url_list, article):
         else:
             count-=1
 
+    #averages the similarity score
     averageScore = cosineAverage/count
     averageScore = str(averageScore).replace('[','').replace(']','')
     averageScore = float(averageScore)
     print(averageScore)
     return cosineCleaned, averageScore
 
-
-
-
+#classification function
 def handlelink():
-    job_vec = joblib.load('tfv.pkl')
-    job_mnb = joblib.load('mnb.pkl')
-    job_cv = joblib.load('cv.pkl')
-    job_pac = joblib.load('pac.pkl')
+
+    #loads the  models
+    job_cv = joblib.load('/home/david/2019-ca400-taland2/src/models/cv.pkl')
+    job_pac = joblib.load('/home/david/2019-ca400-taland2/src/models/pac.pkl')
 
     url = (request.form['article_link'])
+
+    #extracts the article and title from the url
     article, article_title = extractor(url)
+
+    #prediction is made
     pred = job_pac.predict(job_vec.transform(article))
     print("Target article has been classified")
-    #pred = mnb_clf.predict(article_testtf)
 
     return pred, article_title, article, url
 
-
+#function to handle the body of text of the article
+#this is from the bigger text box
+#it doesn't need to extract anything because there's no link
 def handletext():
-    job_vec = joblib.load('tfv.pkl')
-    job_mnb = joblib.load('mnb.pkl')
-    job_cv = joblib.load('cv.pkl')
-
+    job_vec = joblib.load('/home/david/2019-ca400-taland2/src/models/tfv.pkl')
+    job_pac = joblib.load('/home/david/2019-ca400-taland2/src/models/pac.pkl')
     text = request.form['article_text']
     textarticle = textAreaExtractor(text)
-    pred = job_mnb.predict(job_vec.transform(textarticle))
+    pred = job_pac.predict(job_vec.transform(textarticle))
 
     return pred, textarticle
 
@@ -127,17 +138,21 @@ def index():
 
 @app.route('/textResult', methods = ['POST'])
 def textResult():
-
     prediction, article = handletext()
-
+    #in case of reliable prediction
     if prediction == [0]:
         return render_template('/textresult.html', variable="This body of article has been classified as reliable",articletext = article)
+    #case of unreliable prediction
     else:
         return render_template('/textresult.html', variable="This body of article has been classified as unreliable", articletext = article)
 
+#this function handles the prediction results of the classification
+#I created different categories of "support" from other articles
+#with the different similarity score thresholds
 @app.route('/linkResult', methods = ['POST'])
 def linkResult():
 
+    #gets all the variables needed by executing the functions above
     prediction, article_title, article, url = handlelink()
     url_list, search_titles, sitename = google_search(article_title, url)
     similarity_score, avgScore = similarity(url_list, article)
