@@ -38,28 +38,31 @@ def train_model():
     #split training data
     x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=0.33, random_state=53)
 
-    cv = CountVectorizer(stop_words = 'english', max_features = 1000)
-    x_traincv = cv.fit_transform(x_train)
-    article_testcv = cv.transform(article)
+    # cv = CountVectorizer(stop_words = 'english', max_features = 1000)
+    # x_traincv = cv.fit_transform(x_train)
+    # article_testcv = cv.transform(article)
 
     tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features =1000)
 
     x_traintf = tfv.fit_transform(x_train)
     article_testtf = tfv.transform(article)
 
-    mnb_clf = MultinomialNB()
-    mnb_clf.fit(x_traincv, y_train)
+    # mnb_clf = MultinomialNB()
+    # mnb_clf.fit(x_traincv, y_train)
 
-    pred = mnb_clf.predict(article_testtf)
+    pac = PassiveAggressiveClassifier(n_iter_no_change= 5, max_iter = 10, tol = None)
+    pac.fit(x_traintf, y_train)
+    pred = pac.predict(article_testtf)
+    #pred = mnb_clf.predict(article_testtf)
 
     if pred == [0]:
         print("This news article is reliable")
     else:
         print("This news article is deemed unreliable")
 
-    joblib.dump(cv, 'cv.pkl')
-    joblib.dump(tfv, 'tfv.pkl')
-    joblib.dump(mnb_clf, 'mnb.pkl')
+    #joblib.dump(cv, 'cv.pkl')
+    #joblib.dump(tfv, 'tfv.pkl')
+    #joblib.dump(mnb_clf, 'mnb.pkl')
 
 def main():
     train_model()
