@@ -78,4 +78,8 @@ Also created table to display the similar articles with their similarity score -
 
 ## Blog Entry 15
 Similarity score is working properly now.
-Some more UI changes to be made - thinking of adding a textbox to classify a block of text to add a bit more functionality.
+Some more UI changes to be made -  adding a textbox to classify a block of text to add a bit more functionality.
+
+## Blog Entry 16 - Final
+Final delivery all set and ready to go.
+Wasn't able to get user testing done because my ethics approval wasn't approved. I wasn't able to get much testing done at all. Really gutted to lose so many marks.
