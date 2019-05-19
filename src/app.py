@@ -108,7 +108,7 @@ def handlelink():
     #loads the  models
     job_cv = joblib.load('/home/david/2019-ca400-taland2/src/models/cv.pkl')
     job_pac = joblib.load('/home/david/2019-ca400-taland2/src/models/pac.pkl')
-
+    job_vec = joblib.load('/home/david/2019-ca400-taland2/src/models/tfv.pkl')
     url = (request.form['article_link'])
 
     #extracts the article and title from the url
