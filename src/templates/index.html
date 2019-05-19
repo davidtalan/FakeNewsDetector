@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% block head%}
-<head>
+
   <meta charset="utf-8">
   <title>Fake News Detector</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -16,7 +16,6 @@
   <link href="{{url_for('.static', filename='lib/animate/animate.min.css')}}" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Poppins:300,400,500,700" rel="stylesheet">
 
-</head>
 {%endblock%}
 
 {%block body%}
@@ -47,12 +46,23 @@
       <h1>CA400 Final Year Project</h1>
       <h2>This project aims to provide a way to analyse a news article and determine if it's a source of fake news or not</h2>
 
+      <form action="{{url_for('linkResult')}}" method="post" >
+         <div class="form-inline">
 
-      <form action="{{url_for('result')}}" method="post" >
-      <div class="form-group">
-      <input type="url" required class="form-control" name="article_link"  placeholder="Enter article link">
+         <div class="form-group">
+            <input type="url" required class="form-control" name="article_link"  placeholder="Enter article link" style="width:425px;">
+            <input type="submit" class="input-group-addon btn btn-secondary" value="Analyse" >
+         </div>
       </div>
       </form>
+
+      <form action="{{url_for('textResult')}}" method="post">
+      <div class="form-group shadow-textarea" >
+        <label for="textarea"></label>
+        <textarea class="form-control z-depth-1" required id="textarea" name ="article_text"rows="4" minlength="100" placeholder="or enter article body here" style="width:500px;"></textarea>
+         <input type="submit" class="input-group-addon btn btn-secondary" value="Analyse" >
+      </div>
+   </form>
 
     </div>
   </section>
@@ -67,7 +77,7 @@
         <div class="row about-container">
 
           <div class="col-lg-6 content order-lg-1 order-2">
-            <h2 class="title">How it works</h2>
+            <h2 class="title">HOW IT WORKS</h2>
 
             <div class="icon-box wow fadeInUp" data-wow-delay="0.4s">
               <h4 class="title">Article Extraction </h4>
@@ -76,7 +86,7 @@
 
             <div class="icon-box wow fadeInUp" data-wow-delay="0.4s">
               <h4 class="title">Text Classification </h4>
-              <p class="description">With the combination of Term Frequency and Inverse Document Frequency (TF-IDF) and Multinomial Naive Bayes, the article's content is classified as 'Reliable' or 'Unreliable' </p>
+              <p class="description">With the combination of Term Frequency and Inverse Document Frequency (TF-IDF) and a Classifier, the article's content is classified as 'Reliable' or 'Unreliable' </p>
             </div>
 
             <div class="icon-box wow fadeInUp" data-wow-delay="0.4s">
@@ -103,9 +113,9 @@
               <h4>David Talan</h4>
               <span>4th Year Student</span>
               <div class="social">
-                <a href=""><i class="fa fa-twitter"></i></a>
-                <a href=""><i class="fa fa-facebook"></i></a>
-                <a href=""><i class="fa fa-google-plus"></i></a>
+                <a href="https://twitter.com/Dabedd"><i class="fa fa-twitter"></i></a>
+                <a href="https://www.facebook.com/beddpeace?ref=bookmarks"><i class="fa fa-facebook"></i></a>
+
                 <a href=""><i class="fa fa-linkedin"></i></a>
               </div>
             </div>
