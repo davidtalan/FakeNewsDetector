@@ -19,6 +19,8 @@ from googlesearch import search
 from sklearn.metrics.pairwise import cosine_similarity
 import pprint
 
+#This is where I was testing and figuring out how to calculate the similarity score
+
 def extractor(url):
     article = Article(url)
     article.download()

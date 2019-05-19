@@ -15,6 +15,7 @@ import re
 import chardet
 import codecs
 
+#This is where I was figuring out how to use the classifier
 def extract(link):
     article = open(link,"r")
     article = article.read()
@@ -25,10 +26,9 @@ def extract(link):
 
 def train_model():
 
+    #just using dummy data from a text
     article = extract("/home/david/2019-ca400-taland2/src/dataset/test.txt")
-
     dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
-
     #drops rows that have null values
     dftrain = dftrain.dropna()
     #Set column names to variables
