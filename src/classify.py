@@ -28,9 +28,9 @@ def train_model():
     article = extract("/home/david/2019-ca400-taland2/src/dataset/test.txt")
 
     dftrain = pd.read_csv('/home/david/2019-ca400-taland2/src/dataset/train.csv')
+
     #drops rows that have null values
     dftrain = dftrain.dropna()
-
     #Set column names to variables
     df_x = dftrain['text']
     df_y = dftrain['label']
@@ -43,26 +43,41 @@ def train_model():
     # article_testcv = cv.transform(article)
 
     tfv = TfidfVectorizer( stop_words = 'english',max_df = 0.7, max_features =1000)
-
     x_traintf = tfv.fit_transform(x_train)
     article_testtf = tfv.transform(article)
+    tfv_test = tfv.transform(x_test)
+
+    #tfv_df = pd.DataFrame(x_traintf.A, columns = tfv.get_feature_names())
+    #print(tfv_df.head())
+
+    #accuracy = 0.873
 
     # mnb_clf = MultinomialNB()
-    # mnb_clf.fit(x_traincv, y_train)
+    # mnb_clf.fit(x_traintf, y_train)
+    # pred = mnb_clf.predict(tfv_test)
+    #
+    #accuracy = 0.925
 
-    pac = PassiveAggressiveClassifier(n_iter_no_change= 5, max_iter = 10, tol = None)
+    pac = PassiveAggressiveClassifier(n_iter_no_change= 5, max_iter = 10, early_stopping = True)
     pac.fit(x_traintf, y_train)
     pred = pac.predict(article_testtf)
-    #pred = mnb_clf.predict(article_testtf)
+    accuracy = metrics.accuracy_score(y_test, pred)
 
-    if pred == [0]:
-        print("This news article is reliable")
-    else:
-        print("This news article is deemed unreliable")
+    #pred = .predict(tfv_test)
+    #pred = mnb_clf.predict(article_testtf)
+    #
+    # if pred == [0]:
+    #     print("This news article is reliable")
+    # else:
+    #     print("This news article is deemed unreliable")
+
+
+    print("MultinomialNB accuracy:   %0.3f" % accuracy)
 
     #joblib.dump(cv, 'cv.pkl')
     #joblib.dump(tfv, 'tfv.pkl')
     #joblib.dump(mnb_clf, 'mnb.pkl')
+    #joblib.dump(pac, 'pac.pkl')
 
 def main():
     train_model()
