@@ -13,6 +13,7 @@ import re
 from googlesearch import search
 from sklearn.metrics.pairwise import cosine_similarity
 from urllib.parse import urlparse
+import re
 
 app = Flask (__name__)
 Bootstrap(app)
@@ -30,12 +31,20 @@ def extractor(url):
     article = [article]
     return (article, article_title)
 
+def textAreaExtractor(text):
+
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z0-9\s]', ' ', text)
+    text = re.sub("(\\r|\r|\n)\\n$", " ", text)
+    text = [text]
+    return text
+
 def google_search(title, url):
     target = url
     domain =urlparse(target).hostname
     search_title = []
     search_urls = []
-    for i in search(title, tld = "com", num = 10, start = 1, stop = 7):
+    for i in search(title, tld = "com", num = 10, start = 1, stop = 6):
         if "youtube" not in i and domain not in i:
             search_urls.append(i)
             article = Article(i)
@@ -84,49 +93,82 @@ def similarity(url_list, article):
     print(averageScore)
     return cosineCleaned, averageScore
 
+
+
+
+def handlelink():
+    # try:
+    #     url = (request.form['article_link'])
+    # except urlError:
+    #     print("No URL found")
+    #
+    # try:
+    #     text = (request.form['article_text'])
+    # except textAreaError:
+    #     print("No text found")
+    #
+    job_vec = joblib.load('tfv.pkl')
+    job_mnb = joblib.load('mnb.pkl')
+    job_cv = joblib.load('cv.pkl')
+
+    url = (request.form['article_link'])
+    article, article_title = extractor(url)
+    pred = job_mnb.predict(job_vec.transform(article))
+    print("Target article has been classified")
+    #pred = mnb_clf.predict(article_testtf)
+
+    return pred, article_title, article, url
+
+
+def handletext():
+    job_vec = joblib.load('tfv.pkl')
+    job_mnb = joblib.load('mnb.pkl')
+    job_cv = joblib.load('cv.pkl')
+
+    text = request.form['article_text']
+    textarticle = textAreaExtractor(text)
+    pred = job_mnb.predict(job_vec.transform(textarticle))
+
+    return pred, textarticle
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/result', methods = ['POST'])
-def result():
-    url = (request.form['article_link'])
-    article, article_title = extractor(url)
-    job_vec = joblib.load('tfv.pkl')
-    job_mnb = joblib.load('mnb.pkl')
-    job_cv = joblib.load('cv.pkl')
-    pred = job_mnb.predict(job_cv.transform(article))
-    print("Target article has been classified")
-    #pred = mnb_clf.predict(article_testtf)
-    title = article_title
-    return result(pred, title, article, url)
+@app.route('/textResult', methods = ['POST'])
+def textResult():
 
+    prediction, article = handletext()
 
+    if prediction == [0]:
+        return render_template('/textresult.html', variable="This body of article has been classified as reliable",articletext = article)
+    else:
+        return render_template('/textresult.html', variable="This body of article has been classified as unreliable", articletext = article)
 
-def result(prediction, title, article, url):
-    article_title = title
+@app.route('/linkResult', methods = ['POST'])
+def linkResult():
 
-    url_list, search_titles, domains = google_search(title, url)
-
+    prediction, article_title, article, url = handlelink()
+    url_list, search_titles, domains = google_search(article_title, url)
     similarity_score, avgScore = similarity(url_list, article)
 
     if prediction == [0] and avgScore < 20:
-        return render_template('/result.html', variable = "This news article has been classified as reliable but doesn't have many articles to support this statement.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as reliable but doesn't have many articles to support this statement.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
 
     if prediction == [0] and (avgScore > 20 and avgScore < 50) :
-        return render_template('/result.html', variable = "This news article has been classified as reliable and is supported by some articles", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as reliable and is supported by some articles", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
 
     if prediction == [0] and avgScore > 50 :
-        return render_template('/result.html', variable = "This news article has been classified as reliable and is supported by multiple articles", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as reliable and is supported by multiple articles", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
 
     if prediction == [1] and avgScore < 20:
-        return render_template('/result.html', variable = "This news article has been classified as unreliable and doesn't have other articles talking about the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore, sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as unreliable and doesn't have other articles talking about the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore, sim_score = similarity_score)
 
     if prediction == [1] and (avgScore > 20 and avgScore < 50):
-        return render_template('/result.html', variable = "This news article has been classified as unreliable but may have some articles that talk about the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore, sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as unreliable but may have some articles that talk about the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore, sim_score = similarity_score)
 
     if prediction == [1] and avgScore > 50:
-        return render_template('/result.html', variable = "This news article has been classified as unreliable but have multiple articles that say the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
+        return render_template('/linkresult.html', variable = "This news article has been classified as unreliable but have multiple articles that say the same thing.", title = article_title, list = url_list, search_t = search_titles,  average = avgScore,sim_score = similarity_score)
 
 if __name__ == '__main__':
     app.run(debug = True)
